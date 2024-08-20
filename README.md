@@ -1,1 +1,0 @@
-# Sample-.Net-Console-app

@@ -1,0 +1,4 @@
+bin/
+obj/
+nuget_packages/
+.env
