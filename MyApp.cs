@@ -1,9 +1,9 @@
-﻿using System;
-using System.Linq;
+﻿//using System;
+//using System.Linq;
 using EFConsoleApp.Data;
 using EFConsoleApp.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+//using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace EFConsoleApp
 {
@@ -33,6 +33,9 @@ namespace EFConsoleApp
 
         static void Main(string[] args)
         {
+
+            Bootstrap bootInstance = Bootstrap.GetInstance(args);
+            bootInstance.ReadArgs();
 
             if (args.Length > 0 && args[0] == "fetch")
             {
