@@ -29,3 +29,22 @@ dotnet ef database update
 dotnet restore is for installing packages (similar like npm install, it will install packages into nuget_packages directory)
 dotnet build is to build files
 dotnet run is build + run
+
+
+# Pullanje elastic searcha
+docker pull elasticsearch:8.10.2
+
+
+# Runanje Elastic containera (Primjer)
+
+# sa https
+docker run -d --name elasticsearch-container -p 9200:9200 -p 9300:9300 -e "discovery.type=single-node" elasticsearch:8.10.2
+
+# sa http
+docker run -d --name elasticsearch-container -p 9200:9200 -p 9300:9300 -e "discovery.type=single-node" -e "xpack.security.enabled=false" elasticsearch:8.10.2
+
+# Kibana tool za elastic 
+docker run -d --name kibana-container --link elasticsearch-container:elasticsearch -p 5601:5601 kibana:8.10.2
+
+
+
