@@ -1,6 +1,7 @@
 using EFConsoleApp.Data;
 using EFConsoleApp.Models;
 using Microsoft.EntityFrameworkCore;
+using ElasticSearch;
 
 namespace EFConsoleApp
 {
@@ -63,8 +64,13 @@ namespace EFConsoleApp
              using (var context = new SchoolContext())
             {
                 
-                // Osigurajte da su svi potrebni migracije primijenjene
+                // Migriranje MSSQL Databasea
                 context.Database.Migrate();
+                
+
+                //Kreiranje Elastic indexa
+                ElasticSearchService elastic = ElasticSearchService.GetInstance();
+                elastic.CreateIndexes(context);
 
                 // Dodajte neke studente ako baza nije prazna
                 if (!context.Students.Any())
