@@ -70,7 +70,7 @@ namespace EFConsoleApp
 
                 //Kreiranje Elastic indexa
                 ElasticSearchService elastic = ElasticSearchService.GetInstance();
-                elastic.CreateIndexes(context);
+                elastic.CreateIndexes(context).Wait();
 
                 // Dodajte neke studente ako baza nije prazna
                 if (!context.Students.Any())
