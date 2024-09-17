@@ -100,8 +100,6 @@ namespace ElasticSearch
                 Console.WriteLine(jsonBody);
                 await this.ElasticCreateIndex(entityType.Name, jsonBody);
 
-
-
                 Console.WriteLine("Keys:");
                 foreach (var key in entityType.GetKeys())
                 {
