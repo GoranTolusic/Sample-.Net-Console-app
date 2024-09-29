@@ -6,10 +6,10 @@ namespace EFConsoleApp
 {
     class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             Bootstrap bootInstance = Bootstrap.GetInstance(args);
-            bootInstance.StartProcess();
+            await bootInstance.StartProcess();
         }
     }
 }

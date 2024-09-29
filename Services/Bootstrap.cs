@@ -2,6 +2,9 @@ using EFConsoleApp.Data;
 using EFConsoleApp.Models;
 using Microsoft.EntityFrameworkCore;
 using ElasticSearch;
+using System.Net;
+using System.Text;
+
 
 namespace EFConsoleApp
 {
@@ -15,7 +18,7 @@ namespace EFConsoleApp
 
         public Bootstrap(string[] args = null)
         {
-            this.args = args ?? new string[] {};
+            this.args = args ?? new string[] { };
             this.context = new SchoolContext();
         }
 
@@ -97,16 +100,19 @@ namespace EFConsoleApp
             }
         }
 
-        void Sync() {
+        void Sync()
+        {
             //this is going to be operation which will first delete all data from student index, and then copying all students from sql database into elastic
         }
 
-        void Empty(String[] args) {
-            if (this.args.Length < 2) {
+        void Empty(String[] args)
+        {
+            if (this.args.Length < 2)
+            {
                 Console.WriteLine("Missing database argument: sql or elastic");
                 return;
             }
-             switch (args[1])
+            switch (args[1])
             {
                 case "sql":
                     this.context.Database.ExecuteSqlRaw("DELETE FROM Students");
@@ -120,7 +126,7 @@ namespace EFConsoleApp
             }
         }
 
-        void Controller(String[] args)
+        async Task Controller(String[] args)
         {
             switch (args[0])
             {
@@ -139,21 +145,65 @@ namespace EFConsoleApp
                 case "empty":
                     this.Empty(args);
                     break;
+
+                case "serve":
+                    await this.Serve();
+                    break;
                 default:
                     Console.WriteLine("Invalid operation");
                     break;
             }
         }
 
-        public void StartProcess()
+        async Task Serve()
+        {
+            // TODO: host variables stores in env/config files
+            HttpListener listener = new HttpListener();
+            listener.Prefixes.Add("http://localhost:8080/");
+            listener.Start();
+            Console.WriteLine("HTTP Server is running on http://localhost:8080/");
+
+            // TODO: Need to make new class for Server for whole further logic
+            while (true)
+            {
+                HttpListenerContext context = await listener.GetContextAsync();
+                HttpListenerRequest request = context.Request;
+
+                Console.WriteLine($"Http request event: {request.HttpMethod} {request.Url}");
+
+                Console.WriteLine("Headers:");
+                foreach (string headerKey in request.Headers.AllKeys)
+                {
+                    string headerValue = request.Headers[headerKey];
+                    Console.WriteLine($"{headerKey}: {headerValue}");
+                }
+
+                string requestBody;
+                using (var reader = new StreamReader(request.InputStream, request.ContentEncoding))
+                {
+                    requestBody = reader.ReadToEnd();
+                }
+                Console.WriteLine($"Request Body: {requestBody}");
+
+                HttpListenerResponse response = context.Response;
+                string responseString = "<html><body>HTTP server working properly!</body></html>";
+                byte[] buffer = Encoding.UTF8.GetBytes(responseString);
+
+                response.ContentLength64 = buffer.Length;
+                await response.OutputStream.WriteAsync(buffer, 0, buffer.Length);
+                response.OutputStream.Close();
+            }
+        }
+
+        public async Task StartProcess()
         {
             this.ReadArgs();
             if (this.args.Length == 0)
             {
-                Console.WriteLine("Select one of the operations: fetch, add, setup, dummy");
+                Console.WriteLine("Select one of the operations: fetch, add, setup, dummy, empty, serve");
                 return;
             }
-            this.Controller(this.args);
+            await this.Controller(this.args);
         }
     }
 }
