@@ -4,27 +4,30 @@ using Microsoft.EntityFrameworkCore;
 using ElasticSearch;
 using System.Net;
 using System.Text;
+using Microsoft.Extensions.Configuration;
 
 
 namespace EFConsoleApp
 {
     public class Bootstrap
     {
+        private readonly IConfigurationRoot config;
         public string[] args;
 
         public SchoolContext context;
 
         public ElasticSearchService elastic = ElasticSearchService.GetInstance();
 
-        public Bootstrap(string[] args = null)
+        public Bootstrap(IConfigurationRoot config, string[] args = null)
         {
             this.args = args ?? new string[] { };
             this.context = new SchoolContext();
+            this.config = config;
         }
 
-        public static Bootstrap GetInstance(string[] args = null)
+        public static Bootstrap GetInstance(IConfigurationRoot config, string[] args = null)
         {
-            return new Bootstrap(args);
+            return new Bootstrap(config, args);
         }
 
         public void ReadArgs()
@@ -159,9 +162,9 @@ namespace EFConsoleApp
         {
             // TODO: host variables stores in env/config files
             HttpListener listener = new HttpListener();
-            listener.Prefixes.Add("http://localhost:8080/");
+            listener.Prefixes.Add(this.config["Server:Host"]);
             listener.Start();
-            Console.WriteLine("HTTP Server is running on http://localhost:8080/");
+            Console.WriteLine($"HTTP Server is running on {this.config["Server:Host"]}");
 
             // TODO: Need to make new class for Server for whole further logic
             while (true)
